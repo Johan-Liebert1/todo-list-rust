@@ -1,6 +1,5 @@
 use std::io::Write;
 
-// (char, color)
 #[derive(Debug)]
 enum Player {
     Cross,
@@ -26,6 +25,7 @@ struct Game {
 }
 
 impl Game {
+    #[allow(unused)]
     fn init(&mut self) {
         self.current_turn = Player::Cross;
         self.board = [[' '; 3]; 3];
@@ -55,8 +55,6 @@ impl Game {
                     'O' => Player::Circle,
                     _ => Player::Circle,
                 };
-
-                println!("Returning true for 2");
 
                 return true;
             }
@@ -89,6 +87,10 @@ impl Game {
     }
 }
 
+fn clear_screen() {
+    print!("\x1B[2J\x1B[1;1H");
+}
+
 fn get_row_col_value(number: usize) -> (usize, usize) {
     let row = number / 3;
     let col = number % 3;
@@ -104,23 +106,29 @@ fn get_color(character: char) -> &'static str {
     };
 }
 
-fn show_error(error_name: Errors, user_input: &str, character: char) {
-    match error_name {
-        Errors::OverwritingCell => {
-            print!(
-                "{}Cell #{} already occupied by {}{}\n",
-                RED, user_input, character, RESET
-            );
-        }
+fn show_error(
+    error_name: Errors,
+    user_input: &str,
+    character: char,
+    error_in_buffer: &mut Vec<String>,
+) {
+    let error_string = match error_name {
+        Errors::OverwritingCell => format!(
+            "{}Cell #{} already occupied by {}{}\n",
+            RED,
+            user_input.trim(),
+            character,
+            RESET
+        ),
 
         Errors::InputNumberTooLarge => {
-            println!("{} Cell number should be between 1 and 9 {}", RED, RESET);
+            format!("{} Cell number should be between 1 and 9 {}", RED, RESET)
         }
 
-        Errors::IndexOutOfBounds => {
-            println!("{} Index out of bounds {}", RED, RESET);
-        }
-    }
+        Errors::IndexOutOfBounds => format!("{} Index out of bounds {}", RED, RESET),
+    };
+
+    error_in_buffer.push(error_string);
 }
 
 fn main() {
@@ -130,8 +138,17 @@ fn main() {
         winner: Player::Circle,
     };
 
+    let mut error_in_buffer: Vec<String> = Vec::new();
+
     loop {
+        clear_screen();
+
         game.print_board();
+
+        if error_in_buffer.len() > 0 {
+            let error = error_in_buffer.pop().unwrap();
+            println!("{}", error);
+        }
 
         let mut user_input = String::new();
 
@@ -145,19 +162,34 @@ fn main() {
             .expect("Expected a positive integer");
 
         if cell_number < 1 || cell_number > 9 {
-            show_error(Errors::InputNumberTooLarge, &user_input, ' ');
+            show_error(
+                Errors::InputNumberTooLarge,
+                &user_input,
+                ' ',
+                &mut error_in_buffer,
+            );
             continue;
         }
 
         let (row, col) = get_row_col_value(cell_number - 1);
 
         if row > 2 || col > 2 {
-            show_error(Errors::IndexOutOfBounds, &user_input, ' ');
+            show_error(
+                Errors::IndexOutOfBounds,
+                &user_input,
+                ' ',
+                &mut error_in_buffer,
+            );
             continue;
         }
 
         if game.board[row][col] != ' ' {
-            show_error(Errors::OverwritingCell, &user_input, game.board[row][col]);
+            show_error(
+                Errors::OverwritingCell,
+                &user_input,
+                game.board[row][col],
+                &mut error_in_buffer,
+            );
             continue;
         }
 
