@@ -17,6 +17,7 @@ const GREEN: &str = "\u{001b}[32;1m";
 const WHITE: &str = "\u{001b}[37;1m";
 const BLUE: &str = "\u{001b}[34;1m";
 const RESET: &str = "\u{001b}[0m";
+const LIGHT_CYAN: &str = "\u{001b}[36m";
 
 struct Game {
     board: [[char; 3]; 3],
@@ -31,8 +32,24 @@ impl Game {
         self.board = [[' '; 3]; 3];
     }
 
+    fn print_current_turn(&self) {
+        let current_symbol = match self.current_turn {
+            Player::Circle => 'O',
+            Player::Cross => 'X',
+        };
+
+        let symbol_color = get_color(current_symbol);
+
+        print!(
+            "{}Current Turn: {}{}{}{}\nEnter the cell number > {}",
+            LIGHT_CYAN, symbol_color, current_symbol, RESET, LIGHT_CYAN, RESET
+        );
+
+        std::io::stdout().flush().unwrap();
+    }
+
     fn is_game_over(&mut self) -> bool {
-        for i in 1..3 {
+        for i in 0..3 {
             if self.board[i][0] != ' '
                 && self.board[i][0] == self.board[i][1]
                 && self.board[i][1] == self.board[i][2]
@@ -50,7 +67,33 @@ impl Game {
                 && self.board[0][i] == self.board[1][i]
                 && self.board[1][i] == self.board[2][i]
             {
-                self.winner = match self.board[i][0] {
+                self.winner = match self.board[0][i] {
+                    'X' => Player::Cross,
+                    'O' => Player::Circle,
+                    _ => Player::Circle,
+                };
+
+                return true;
+            }
+
+            if self.board[0][0] != ' '
+                && self.board[0][0] == self.board[1][1]
+                && self.board[1][1] == self.board[2][2]
+            {
+                self.winner = match self.board[0][0] {
+                    'X' => Player::Cross,
+                    'O' => Player::Circle,
+                    _ => Player::Circle,
+                };
+
+                return true;
+            }
+
+            if self.board[0][2] != ' '
+                && self.board[0][2] == self.board[1][1]
+                && self.board[1][1] == self.board[2][0]
+            {
+                self.winner = match self.board[0][0] {
                     'X' => Player::Cross,
                     'O' => Player::Circle,
                     _ => Player::Circle,
@@ -64,18 +107,20 @@ impl Game {
     }
 
     fn print_board(&self) {
-        for row in self.board {
-            println!("-------------");
+        for (row_idx, row) in self.board.iter().enumerate() {
+            if row_idx != 0 {
+                println!("-------------");
+            }
 
             for (index, col) in row.iter().enumerate() {
                 let color = get_color(*col);
 
                 let string = if index == 0 {
-                    format!("| {}{}{} ", color, col, RESET)
+                    format!("  {}{}{} ", color, col, RESET)
                 } else if index == 1 {
                     format!("| {}{}{} |", color, col, RESET)
                 } else {
-                    format!(" {}{}{} |", color, col, RESET)
+                    format!(" {}{}{}  ", color, col, RESET)
                 };
 
                 print!("{}", &string);
@@ -83,7 +128,6 @@ impl Game {
             }
             println!();
         }
-        println!("-------------");
     }
 }
 
@@ -110,7 +154,7 @@ fn show_error(
     error_name: Errors,
     user_input: &str,
     character: char,
-    error_in_buffer: &mut Vec<String>,
+    errors_in_buffer: &mut Vec<String>,
 ) {
     let error_string = match error_name {
         Errors::OverwritingCell => format!(
@@ -122,13 +166,13 @@ fn show_error(
         ),
 
         Errors::InputNumberTooLarge => {
-            format!("{} Cell number should be between 1 and 9 {}", RED, RESET)
+            format!("{}Cell number should be between 1 and 9 {}", RED, RESET)
         }
 
-        Errors::IndexOutOfBounds => format!("{} Index out of bounds {}", RED, RESET),
+        Errors::IndexOutOfBounds => format!("{}Index out of bounds {}", RED, RESET),
     };
 
-    error_in_buffer.push(error_string);
+    errors_in_buffer.push(error_string);
 }
 
 fn main() {
@@ -138,19 +182,21 @@ fn main() {
         winner: Player::Circle,
     };
 
-    let mut error_in_buffer: Vec<String> = Vec::new();
+    let mut errors_in_buffer: Vec<String> = Vec::new();
 
     loop {
         clear_screen();
 
         game.print_board();
 
-        if error_in_buffer.len() > 0 {
-            let error = error_in_buffer.pop().unwrap();
+        if errors_in_buffer.len() > 0 {
+            let error = errors_in_buffer.pop().unwrap();
             println!("{}", error);
         }
 
         let mut user_input = String::new();
+
+        game.print_current_turn();
 
         std::io::stdin()
             .read_line(&mut user_input)
@@ -166,7 +212,7 @@ fn main() {
                 Errors::InputNumberTooLarge,
                 &user_input,
                 ' ',
-                &mut error_in_buffer,
+                &mut errors_in_buffer,
             );
             continue;
         }
@@ -178,7 +224,7 @@ fn main() {
                 Errors::IndexOutOfBounds,
                 &user_input,
                 ' ',
-                &mut error_in_buffer,
+                &mut errors_in_buffer,
             );
             continue;
         }
@@ -188,7 +234,7 @@ fn main() {
                 Errors::OverwritingCell,
                 &user_input,
                 game.board[row][col],
-                &mut error_in_buffer,
+                &mut errors_in_buffer,
             );
             continue;
         }
@@ -199,7 +245,6 @@ fn main() {
         }
 
         if game.is_game_over() {
-            game.print_board();
             println!("{}{:?} Won!{}", GREEN, game.winner, RESET);
             break;
         }
