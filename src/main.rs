@@ -93,7 +93,7 @@ impl Game {
                 && self.board[0][2] == self.board[1][1]
                 && self.board[1][1] == self.board[2][0]
             {
-                self.winner = match self.board[0][0] {
+                self.winner = match self.board[0][2] {
                     'X' => Player::Cross,
                     'O' => Player::Circle,
                     _ => Player::Circle,
@@ -107,6 +107,7 @@ impl Game {
     }
 
     fn print_board(&self) {
+        println!();
         for (row_idx, row) in self.board.iter().enumerate() {
             if row_idx != 0 {
                 println!("-------------");
@@ -128,6 +129,7 @@ impl Game {
             }
             println!();
         }
+        println!();
     }
 }
 
@@ -158,7 +160,7 @@ fn show_error(
 ) {
     let error_string = match error_name {
         Errors::OverwritingCell => format!(
-            "{}Cell #{} already occupied by {}{}\n",
+            "{}Cell #{} is already occupied by {}{}\n",
             RED,
             user_input.trim(),
             character,
@@ -245,8 +247,30 @@ fn main() {
         }
 
         if game.is_game_over() {
+            clear_screen();
+            game.print_board();
             println!("{}{:?} Won!{}", GREEN, game.winner, RESET);
-            break;
+
+            let mut play_again = String::new();
+
+            print!("\nPlay again? [yes/no] ");
+            std::io::stdout().flush().unwrap();
+
+            std::io::stdin()
+                .read_line(&mut play_again)
+                .expect("Couldn't read input");
+
+            let start_new_game = match play_again.to_lowercase().trim() {
+                "y" | "yes" => true,
+                _ => false,
+            };
+
+            if !start_new_game {
+                break;
+            }
+
+            game.init();
+            continue;
         }
 
         // change turn
