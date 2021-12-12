@@ -2,7 +2,7 @@ use crate::colors;
 use crate::helpers;
 use std::io::Write;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Player {
     Cross,
     Circle,
@@ -12,13 +12,14 @@ pub struct Game {
     pub board: [[char; 3]; 3],
     pub current_turn: Player,
     pub winner: Player,
+    pub is_draw: bool,
 }
 
 impl Game {
-    #[allow(unused)]
     pub fn init(&mut self) {
         self.current_turn = Player::Cross;
         self.board = [[' '; 3]; 3];
+        self.is_draw = false;
     }
 
     pub fn print_current_turn(&self) {
@@ -43,6 +44,17 @@ impl Game {
     }
 
     pub fn is_game_over(&mut self) -> bool {
+        let mut is_board_filled = true;
+
+        'outer: for row in self.board {
+            for col in row {
+                if col == ' ' {
+                    is_board_filled = false;
+                    break 'outer;
+                }
+            }
+        }
+
         for i in 0..3 {
             if self.board[i][0] != ' '
                 && self.board[i][0] == self.board[i][1]
@@ -95,6 +107,11 @@ impl Game {
 
                 return true;
             }
+        }
+
+        if is_board_filled {
+            self.is_draw = true;
+            return true;
         }
 
         return false;

@@ -10,6 +10,7 @@ fn main() {
         board: [[' '; 3]; 3],
         current_turn: game::Player::Circle,
         winner: game::Player::Circle,
+        is_draw: false,
     };
 
     let mut errors_in_buffer: Vec<String> = Vec::new();
@@ -77,7 +78,12 @@ fn main() {
         if game.is_game_over() {
             helpers::clear_screen();
             game.print_board();
-            println!("{}{:?} Won!{}", colors::GREEN, game.winner, colors::RESET);
+
+            if game.is_draw {
+                println!("{}It's a tie!{}", colors::CYAN, colors::RESET);
+            } else {
+                println!("{}{:?} Won!{}", colors::GREEN, game.winner, colors::RESET);
+            }
 
             let mut play_again = String::new();
 
