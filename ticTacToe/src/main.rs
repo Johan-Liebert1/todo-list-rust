@@ -4,11 +4,16 @@ mod helpers;
 mod minimax;
 
 fn main() {
-    let mut game: game::Game = game::Game {
+    helpers::clear_screen();
+
+    let num_players = helpers::ask_for_players();
+
+    let mut game = game::Game {
         board: [[' '; 3]; 3],
         current_turn: game::Player::Circle,
         winner: game::Player::Circle,
         is_draw: false,
+        two_players: num_players == 2,
     };
 
     let mut errors_in_buffer: Vec<String> = Vec::new();
@@ -45,9 +50,10 @@ fn main() {
 
         game.play_turn(row as usize, col as usize);
 
-        game.change_turn();
-
-        game.play_ai_turn();
+        if !game.two_players {
+            game.change_turn();
+            game.play_ai_turn();
+        }
 
         if game.is_game_over() {
             let start_new_game = helpers::handle_game_over(&game);

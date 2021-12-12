@@ -14,6 +14,7 @@ pub struct Game {
     pub current_turn: Player,
     pub winner: Player,
     pub is_draw: bool,
+    pub two_players: bool,
 }
 
 impl Game {
@@ -31,7 +32,6 @@ impl Game {
     }
 
     pub fn change_turn(&mut self) {
-        // change turn
         self.current_turn = match self.current_turn {
             Player::Circle => Player::Cross,
             Player::Cross => Player::Circle,

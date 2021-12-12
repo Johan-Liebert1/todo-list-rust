@@ -7,6 +7,35 @@ pub enum Errors {
     OverwritingCell,
 }
 
+pub fn ask_for_players() -> i8 {
+    println!("{}1. Single Player (against computer)", colors::GREEN);
+    println!("2. Two Player (against another human)");
+
+    loop {
+        let mut players = String::new();
+
+        print!("{}[1/2] Default 1 > {}", colors::GREEN, colors::RESET);
+        std::io::stdout().flush().unwrap();
+
+        std::io::stdin()
+            .read_line(&mut players)
+            .expect("Failed to read input");
+
+        if players.trim().len() == 0 {
+            return 1;
+        }
+
+        let user_input: i8 = players.trim().parse().expect("Expected a number");
+
+        if user_input > 2 || user_input < 0 {
+            println!("{}Please enter 1 or 2{}\n", colors::RED, colors::RESET);
+            continue;
+        }
+
+        return user_input;
+    }
+}
+
 pub fn clear_screen() {
     print!("\x1B[2J\x1B[1;1H");
 }
@@ -42,7 +71,7 @@ pub fn handle_game_over(game: &game::Game) -> bool {
 
     let mut play_again = String::new();
 
-    print!("\nPlay again? [yes/no] ");
+    print!("\n{}Play again? [yes/no] {}", colors::BLUE, colors::RESET);
     std::io::stdout().flush().unwrap();
 
     std::io::stdin()
