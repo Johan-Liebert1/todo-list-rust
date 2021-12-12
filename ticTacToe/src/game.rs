@@ -1,5 +1,6 @@
 use crate::colors;
 use crate::helpers;
+use crate::minimax;
 use std::io::Write;
 
 #[derive(Debug, PartialEq)]
@@ -20,6 +21,56 @@ impl Game {
         self.current_turn = Player::Cross;
         self.board = [[' '; 3]; 3];
         self.is_draw = false;
+    }
+
+    pub fn play_turn(&mut self, row: usize, col: usize) {
+        match self.current_turn {
+            Player::Circle => self.board[row][col] = 'O',
+            Player::Cross => self.board[row][col] = 'X',
+        }
+    }
+
+    pub fn change_turn(&mut self) {
+        // change turn
+        self.current_turn = match self.current_turn {
+            Player::Circle => Player::Cross,
+            Player::Cross => Player::Circle,
+        }
+    }
+
+    pub fn play_ai_turn(&mut self) {
+        let mut best_score = -1000;
+
+        let mut final_row: usize = 0;
+        let mut final_col: usize = 0;
+
+        for row in 0..3 {
+            for col in 0..3 {
+                if self.board[row][col] == ' ' {
+                    self.board[row][col] = 'X';
+
+                    let score = minimax::minimax(self, false);
+
+                    self.board[row][col] = ' ';
+
+                    if score > best_score {
+                        best_score = score;
+                        final_row = row;
+                        final_col = col;
+                    }
+                }
+            }
+        }
+
+        self.board[final_row][final_col] = 'X';
+    }
+
+    fn set_winner(&mut self, row: usize, col: usize) {
+        self.winner = match self.board[row][col] {
+            'X' => Player::Cross,
+            'O' => Player::Circle,
+            _ => Player::Circle,
+        };
     }
 
     pub fn print_current_turn(&self) {
@@ -43,75 +94,48 @@ impl Game {
         std::io::stdout().flush().unwrap();
     }
 
-    pub fn is_game_over(&mut self) -> bool {
-        let mut is_board_filled = true;
-
-        'outer: for row in self.board {
+    pub fn is_board_filled(&self) -> bool {
+        for row in self.board {
             for col in row {
                 if col == ' ' {
-                    is_board_filled = false;
-                    break 'outer;
+                    return false;
                 }
             }
         }
 
+        true
+    }
+
+    pub fn is_game_over(&mut self) -> bool {
+        let board_filled = self.is_board_filled();
+
         for i in 0..3 {
-            if self.board[i][0] != ' '
-                && self.board[i][0] == self.board[i][1]
-                && self.board[i][1] == self.board[i][2]
-            {
-                self.winner = match self.board[i][0] {
-                    'X' => Player::Cross,
-                    'O' => Player::Circle,
-                    _ => Player::Cross,
-                };
-
+            if helpers::equal3(self.board[i][0], self.board[i][1], self.board[i][2]) {
+                self.set_winner(i, 0);
                 return true;
             }
 
-            if self.board[0][i] != ' '
-                && self.board[0][i] == self.board[1][i]
-                && self.board[1][i] == self.board[2][i]
-            {
-                self.winner = match self.board[0][i] {
-                    'X' => Player::Cross,
-                    'O' => Player::Circle,
-                    _ => Player::Circle,
-                };
-
-                return true;
-            }
-
-            if self.board[0][0] != ' '
-                && self.board[0][0] == self.board[1][1]
-                && self.board[1][1] == self.board[2][2]
-            {
-                self.winner = match self.board[0][0] {
-                    'X' => Player::Cross,
-                    'O' => Player::Circle,
-                    _ => Player::Circle,
-                };
-
-                return true;
-            }
-
-            if self.board[0][2] != ' '
-                && self.board[0][2] == self.board[1][1]
-                && self.board[1][1] == self.board[2][0]
-            {
-                self.winner = match self.board[0][2] {
-                    'X' => Player::Cross,
-                    'O' => Player::Circle,
-                    _ => Player::Circle,
-                };
-
+            if helpers::equal3(self.board[0][i], self.board[1][i], self.board[2][i]) {
+                self.set_winner(0, i);
                 return true;
             }
         }
 
-        if is_board_filled {
+        if helpers::equal3(self.board[0][0], self.board[1][1], self.board[2][2]) {
+            self.set_winner(0, 0);
+            return true;
+        }
+
+        if helpers::equal3(self.board[0][2], self.board[1][1], self.board[2][0]) {
+            self.set_winner(0, 2);
+            return true;
+        }
+
+        if board_filled {
             self.is_draw = true;
             return true;
+        } else {
+            self.is_draw = false;
         }
 
         return false;

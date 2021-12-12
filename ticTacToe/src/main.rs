@@ -1,9 +1,7 @@
-use std::io::Write;
-
-pub mod colors;
-pub mod game;
-pub mod helpers;
-pub mod minimax;
+mod colors;
+mod game;
+mod helpers;
+mod minimax;
 
 fn main() {
     let mut game: game::Game = game::Game {
@@ -38,66 +36,21 @@ fn main() {
             .parse()
             .expect("Expected a positive integer");
 
-        if cell_number < 1 || cell_number > 9 {
-            helpers::show_error(
-                helpers::Errors::InputNumberTooLarge,
-                &user_input,
-                ' ',
-                &mut errors_in_buffer,
-            );
+        let (row, col) =
+            helpers::check_for_errors(&game, cell_number, &user_input, &mut errors_in_buffer);
+
+        if row == -1 {
             continue;
         }
 
-        let (row, col) = helpers::get_row_col_value(cell_number - 1);
+        game.play_turn(row as usize, col as usize);
 
-        if row > 2 || col > 2 {
-            helpers::show_error(
-                helpers::Errors::IndexOutOfBounds,
-                &user_input,
-                ' ',
-                &mut errors_in_buffer,
-            );
-            continue;
-        }
+        game.change_turn();
 
-        if game.board[row][col] != ' ' {
-            helpers::show_error(
-                helpers::Errors::OverwritingCell,
-                &user_input,
-                game.board[row][col],
-                &mut errors_in_buffer,
-            );
-            continue;
-        }
-
-        match game.current_turn {
-            game::Player::Circle => game.board[row][col] = 'O',
-            game::Player::Cross => game.board[row][col] = 'X',
-        }
+        game.play_ai_turn();
 
         if game.is_game_over() {
-            helpers::clear_screen();
-            game.print_board();
-
-            if game.is_draw {
-                println!("{}It's a tie!{}", colors::CYAN, colors::RESET);
-            } else {
-                println!("{}{:?} Won!{}", colors::GREEN, game.winner, colors::RESET);
-            }
-
-            let mut play_again = String::new();
-
-            print!("\nPlay again? [yes/no] ");
-            std::io::stdout().flush().unwrap();
-
-            std::io::stdin()
-                .read_line(&mut play_again)
-                .expect("Couldn't read input");
-
-            let start_new_game = match play_again.to_lowercase().trim() {
-                "y" | "yes" => true,
-                _ => false,
-            };
+            let start_new_game = helpers::handle_game_over(&game);
 
             if !start_new_game {
                 break;
@@ -107,10 +60,6 @@ fn main() {
             continue;
         }
 
-        // change turn
-        game.current_turn = match game.current_turn {
-            game::Player::Circle => game::Player::Cross,
-            game::Player::Cross => game::Player::Circle,
-        }
+        game.change_turn();
     }
 }
