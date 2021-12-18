@@ -1,7 +1,4 @@
-#[allow(unused_variables, dead_code)]
-
-pub const TODO_LIST: &str = "todoList";
-pub const PROJECTS_LIST: &str = "projectsList";
-pub const COMPLETED: &str = "completed";
-pub const TITLE: &str = "title";
-pub const DESCRIPTION: &str = "description";
+pub const NOT_COMPLETED: i16 = 0;
+pub const NOT_COMPLETED_HIGHLIGHT: i16 = 1;
+pub const COMPLETED: i16 = 2;
+pub const COMPLETED_HIGHLIGHT: i16 = 3;

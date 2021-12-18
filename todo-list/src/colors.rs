@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub const RED: &str = "\u{001b}[31;1m";
 pub const GREEN: &str = "\u{001b}[32;1m";
 pub const WHITE: &str = "\u{001b}[37;1m";
@@ -14,3 +16,5 @@ pub const BACKGROUND_BLUE: &str = "\u{001b}[44m";
 pub const BACKGROUND_MAGENTA: &str = "\u{001b}[45m";
 pub const BACKGROUND_CYAN: &str = "\u{001b}[46m";
 pub const BACKGROUND_WHITE: &str = "\u{001b}[47m";
+
+pub const REVERSED: &str = "\u{001b}[7m";
