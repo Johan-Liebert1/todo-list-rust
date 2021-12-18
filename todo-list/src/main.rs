@@ -14,16 +14,16 @@ mod types;
 
 use types::Json;
 
-fn move_cursor_up(current_selected: &mut usize, list_len: usize) {
+fn move_cursor_up(current_selected: &mut i16, list_len: usize) {
     if *current_selected > 0 {
         *current_selected -= 1;
     } else {
-        *current_selected = list_len - 1;
+        *current_selected = (list_len - 1) as i16;
     }
 }
 
-fn move_cursor_down(current_selected: &mut usize, list_len: usize) {
-    if *current_selected < list_len - 1 {
+fn move_cursor_down(current_selected: &mut i16, list_len: usize) {
+    if *current_selected < (list_len - 1) as i16 {
         *current_selected += 1
     } else {
         *current_selected = 0
@@ -55,7 +55,7 @@ fn init_ncurses() {
         nc::COLOR_BLACK,
         nc::COLOR_GREEN,
     );
-    nc::init_pair(constants::TITLE_COLOR, nc::COLOR_CYAN, nc::COLOR_BLACK);
+    nc::init_pair(constants::TAB_COLOR, nc::COLOR_CYAN, nc::COLOR_BLACK);
 }
 
 fn main() {
@@ -65,14 +65,6 @@ fn main() {
     let mut parsed_json: Json = serde_json::from_str(&file_data).unwrap();
 
     init_ncurses();
-
-    let root_layout = layout::LayoutBox {
-        width: nc::COLS(),
-        height: nc::LINES(),
-        layout_type: layout::LayoutTypes::Horizontal,
-        children: Vec::new(),
-        position: layout::Position { x: 0, y: 0 },
-    };
 
     let left_layout = layout::LayoutBox {
         width: nc::COLS() / 2,
@@ -94,37 +86,73 @@ fn main() {
     };
 
     let mut quit = false;
-    let mut current_selected: usize = 0;
+    let mut current_selected_todo: i16 = 0;
+    let mut current_selected_project: i16 = -1;
+    let mut current_tab: types::ListType = types::ListType::Todo;
 
     while !quit {
         helpers::render_list(
             types::ListType::Todo,
             &parsed_json.todoList,
             &left_layout,
-            current_selected,
+            current_selected_todo,
+            &current_tab,
         );
 
         helpers::render_list(
             types::ListType::Projects,
             &parsed_json.projectsList,
             &right_layout,
-            current_selected,
+            current_selected_project,
+            &current_tab,
         );
+        nc::refresh();
 
         let key: i32 = nc::getch();
 
         // println!("key = {}", key);
 
-        match key {
-            27 => move_cursor_up(&mut current_selected, parsed_json.todoList.len()),
-            29 => move_cursor_down(&mut current_selected, parsed_json.todoList.len()),
-            10 => parsed_json.todoList[current_selected].toggle_completed(),
-            _ => {}
-        }
-
         match key as u8 as char {
+            'w' => match current_tab {
+                types::ListType::Todo => {
+                    move_cursor_up(&mut current_selected_todo, parsed_json.todoList.len())
+                }
+                types::ListType::Projects => move_cursor_up(
+                    &mut current_selected_project,
+                    parsed_json.projectsList.len(),
+                ),
+            },
+
+            's' => match current_tab {
+                types::ListType::Todo => {
+                    move_cursor_down(&mut current_selected_todo, parsed_json.todoList.len())
+                }
+                types::ListType::Projects => move_cursor_down(
+                    &mut current_selected_project,
+                    parsed_json.projectsList.len(),
+                ),
+            },
+
+            '\n' => parsed_json.todoList[current_selected_todo as usize].toggle_completed(),
+
+            '\t' => {
+                (current_tab) = match current_tab {
+                    types::ListType::Todo => {
+                        current_selected_project = 0;
+                        current_selected_todo = -1;
+                        types::ListType::Projects
+                    }
+                    types::ListType::Projects => {
+                        current_selected_project = -1;
+                        current_selected_todo = 0;
+                        types::ListType::Todo
+                    }
+                }
+            }
+
             'q' => quit = true,
-            's' => {
+
+            'S' => {
                 quit = true;
                 save_and_exit(&parsed_json);
             }

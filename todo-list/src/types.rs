@@ -4,6 +4,7 @@ extern crate serde_json;
 
 use serde_derive::{Deserialize, Serialize};
 
+#[derive(PartialEq)]
 pub enum ListType {
     Projects,
     Todo,
@@ -35,10 +36,12 @@ impl Todo {
 }
 
 impl ListType {
-    pub fn title(&self) -> &str {
-        match self {
-            &ListType::Projects => "Projects",
-            &ListType::Todo => "Todo",
+    pub fn title(&self, current_tab: &ListType) -> &str {
+        match (self, current_tab) {
+            (ListType::Projects, ListType::Projects) => "[Projects]",
+            (ListType::Projects, ListType::Todo) => "Projects",
+            (ListType::Todo, ListType::Todo) => "[Todo]",
+            (ListType::Todo, ListType::Projects) => "Todo",
         }
     }
 }
