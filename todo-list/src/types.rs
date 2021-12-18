@@ -30,10 +30,6 @@ fn min(a: usize, b: usize) -> usize {
     return if a < b { a } else { b };
 }
 
-fn max(a: usize, b: usize) -> usize {
-    return if a > b { a } else { b };
-}
-
 fn characters_to_fill(num_chars: usize) -> String {
     let mut s = String::new();
 

@@ -3,10 +3,9 @@ extern crate serde_derive;
 extern crate serde_json;
 
 use ncurses as nc;
-use std::fs;
 use std::path::Path;
+use std::{env, fs};
 
-mod colors;
 mod constants;
 mod helpers;
 mod layout;
@@ -59,6 +58,13 @@ fn init_ncurses() {
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 {
+        println!("{:?}", args);
+        return;
+    }
+
     let file_path = Path::new(constants::FILE_PATH);
     let file_data = fs::read_to_string(&file_path).expect("could not open file");
 
@@ -70,7 +76,6 @@ fn main() {
         width: nc::COLS() / 2,
         height: nc::LINES(),
         layout_type: layout::LayoutTypes::Vertical,
-        children: Vec::new(),
         position: layout::Position { x: 0, y: 0 },
     };
 
@@ -78,7 +83,6 @@ fn main() {
         width: nc::COLS() / 2,
         height: nc::LINES(),
         layout_type: layout::LayoutTypes::Vertical,
-        children: Vec::new(),
         position: layout::Position {
             x: nc::COLS() / 2,
             y: 0,
