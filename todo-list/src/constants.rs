@@ -1,3 +1,5 @@
+#[allow(unused_variables, dead_code)]
+
 pub const TODO_LIST: &str = "todoList";
 pub const PROJECTS_LIST: &str = "projectsList";
 pub const COMPLETED: &str = "completed";
