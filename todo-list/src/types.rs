@@ -17,3 +17,14 @@ pub struct Json {
     pub todoList: Vec<Todo>,
     pub projectsList: Vec<Todo>,
 }
+
+impl Todo {
+    pub fn to_string(&self, index: usize) -> String {
+        let symbol = if self.completed { "O" } else { " " };
+        format!("{}. [{}] {}", index, symbol, self.title)
+    }
+
+    pub fn toggle_completed(&mut self) {
+        self.completed = !self.completed;
+    }
+}
