@@ -4,6 +4,11 @@ extern crate serde_json;
 
 use serde_derive::{Deserialize, Serialize};
 
+pub enum ListType {
+    Projects,
+    Todo,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Todo {
     pub title: String,
@@ -26,5 +31,14 @@ impl Todo {
 
     pub fn toggle_completed(&mut self) {
         self.completed = !self.completed;
+    }
+}
+
+impl ListType {
+    pub fn title(&self) -> &str {
+        match self {
+            &ListType::Projects => "Projects",
+            &ListType::Todo => "Todo",
+        }
     }
 }

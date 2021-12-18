@@ -9,6 +9,7 @@ use std::path::Path;
 mod colors;
 mod constants;
 mod helpers;
+mod layout;
 mod types;
 
 use types::Json;
@@ -54,6 +55,7 @@ fn init_ncurses() {
         nc::COLOR_BLACK,
         nc::COLOR_GREEN,
     );
+    nc::init_pair(constants::TITLE_COLOR, nc::COLOR_CYAN, nc::COLOR_BLACK);
 }
 
 fn main() {
@@ -64,22 +66,50 @@ fn main() {
 
     init_ncurses();
 
+    let root_layout = layout::LayoutBox {
+        width: nc::COLS(),
+        height: nc::LINES(),
+        layout_type: layout::LayoutTypes::Horizontal,
+        children: Vec::new(),
+        position: layout::Position { x: 0, y: 0 },
+    };
+
+    let left_layout = layout::LayoutBox {
+        width: nc::COLS() / 2,
+        height: nc::LINES(),
+        layout_type: layout::LayoutTypes::Vertical,
+        children: Vec::new(),
+        position: layout::Position { x: 0, y: 0 },
+    };
+
+    let right_layout = layout::LayoutBox {
+        width: nc::COLS() / 2,
+        height: nc::LINES(),
+        layout_type: layout::LayoutTypes::Vertical,
+        children: Vec::new(),
+        position: layout::Position {
+            x: nc::COLS() / 2,
+            y: 0,
+        },
+    };
+
     let mut quit = false;
     let mut current_selected: usize = 0;
 
     while !quit {
-        for (index, todo) in parsed_json.todoList.iter().enumerate() {
-            // helpers::print_item(index + 1, 0 + 1, todo);
-            nc::mv(index as i32, 0);
+        helpers::render_list(
+            types::ListType::Todo,
+            &parsed_json.todoList,
+            &left_layout,
+            current_selected,
+        );
 
-            let attribute = helpers::get_text_attribute(todo, index, current_selected);
-
-            nc::attron(nc::COLOR_PAIR(attribute));
-            nc::addstr(&todo.to_string(index + 1));
-            nc::attroff(nc::COLOR_PAIR(attribute));
-        }
-
-        nc::refresh();
+        helpers::render_list(
+            types::ListType::Projects,
+            &parsed_json.projectsList,
+            &right_layout,
+            current_selected,
+        );
 
         let key: i32 = nc::getch();
 
@@ -95,11 +125,12 @@ fn main() {
         match key as u8 as char {
             'q' => quit = true,
             's' => {
-                // save and quit
                 quit = true;
                 save_and_exit(&parsed_json);
             }
             _ => {}
         }
     }
+
+    nc::endwin();
 }
