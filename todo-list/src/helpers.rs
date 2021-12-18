@@ -36,13 +36,27 @@ pub fn render_list(
     nc::addstr(list_type.title(current_tab));
     nc::attroff(nc::COLOR_PAIR(constants::TAB_COLOR));
 
+    let mut row = 2;
+
     for (index, todo) in list.iter().enumerate() {
-        nc::mv((index + 2) as i32, starting_x as i32);
+        let mut string_vector: Vec<String> = Vec::new();
+
+        nc::mv(row, starting_x);
 
         let attribute = get_text_attribute(todo, index, current_selected);
 
         nc::attron(nc::COLOR_PAIR(attribute));
-        nc::addstr(&todo.to_string(index + 1));
+
+        todo.to_string(index + 1, layout, &mut string_vector);
+
+        for string in string_vector {
+            nc::mv(row, starting_x);
+            nc::addstr(&string);
+            row += 1;
+        }
+
         nc::attroff(nc::COLOR_PAIR(attribute));
+
+        row += 1;
     }
 }

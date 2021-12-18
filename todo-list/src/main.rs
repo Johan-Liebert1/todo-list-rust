@@ -39,7 +39,7 @@ fn save_and_exit(parsed_json: &Json) {
 
 fn init_ncurses() {
     nc::initscr();
-    nc::noecho(); // don't show typed characters on the terminal
+    // nc::noecho(); // don't show typed characters on the terminal
     nc::curs_set(nc::CURSOR_VISIBILITY::CURSOR_INVISIBLE); // hide the cursor
 
     nc::start_color();
@@ -117,6 +117,7 @@ fn main() {
                 types::ListType::Todo => {
                     move_cursor_up(&mut current_selected_todo, parsed_json.todoList.len())
                 }
+
                 types::ListType::Projects => move_cursor_up(
                     &mut current_selected_project,
                     parsed_json.projectsList.len(),
@@ -127,21 +128,30 @@ fn main() {
                 types::ListType::Todo => {
                     move_cursor_down(&mut current_selected_todo, parsed_json.todoList.len())
                 }
+
                 types::ListType::Projects => move_cursor_down(
                     &mut current_selected_project,
                     parsed_json.projectsList.len(),
                 ),
             },
 
-            '\n' => parsed_json.todoList[current_selected_todo as usize].toggle_completed(),
+            '\n' => match current_tab {
+                types::ListType::Todo => {
+                    parsed_json.todoList[current_selected_todo as usize].toggle_completed()
+                }
+                types::ListType::Projects => {
+                    parsed_json.projectsList[current_selected_project as usize].toggle_completed()
+                }
+            },
 
-            '\t' => {
+            '\t' | 'a' | 'd' => {
                 (current_tab) = match current_tab {
                     types::ListType::Todo => {
                         current_selected_project = 0;
                         current_selected_todo = -1;
                         types::ListType::Projects
                     }
+
                     types::ListType::Projects => {
                         current_selected_project = -1;
                         current_selected_todo = 0;
