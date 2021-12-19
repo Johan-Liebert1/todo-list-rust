@@ -4,9 +4,11 @@ extern crate serde_json;
 
 use serde_derive::{Deserialize, Serialize};
 
+use crate::actions::UserActions;
+use crate::constants;
 use crate::layout;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum ListType {
     Projects,
     Todo,
@@ -14,6 +16,7 @@ pub enum ListType {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Todo {
+    pub index: usize,
     pub title: String,
     pub completed: bool,
     pub description: Vec<String>,
@@ -104,6 +107,42 @@ impl Todo {
 
     pub fn toggle_completed(&mut self) {
         self.completed = !self.completed;
+    }
+}
+
+impl Json {
+    pub fn insert_into_list(&mut self, list_type: ListType, item: Todo) {
+        let list = match list_type {
+            ListType::Todo => &mut self.todoList,
+            ListType::Projects => &mut self.projectsList,
+        };
+
+        let index = if list.len() == 0 {
+            0
+        } else if item.index >= list.len() {
+            list.len()
+        } else {
+            item.index
+        };
+
+        list.insert(index, item);
+    }
+
+    pub fn delete_from_list(
+        &mut self,
+        list_type: &ListType,
+        current_selected: usize,
+        user_actions: &mut UserActions,
+    ) {
+        let list = match list_type {
+            ListType::Todo => &mut self.todoList,
+            ListType::Projects => &mut self.projectsList,
+        };
+
+        // list = list.iter().filter(|item| item.index == to_delete).collect();
+        let item_removed = list.remove(current_selected);
+
+        user_actions.push(constants::DELETE_ITEM, *list_type, item_removed);
     }
 }
 

@@ -7,3 +7,6 @@ pub const TAB_COLOR: i16 = 4;
 pub const FILE_PATH: &str = "data/data.json";
 
 pub const PADDING: i32 = 5;
+
+// action names
+pub const DELETE_ITEM: &str = "DELETE_ITEM";

@@ -2,10 +2,12 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
+use actions::UserActions;
 use ncurses as nc;
 use std::path::Path;
 use std::{env, fs};
 
+mod actions;
 mod constants;
 mod helpers;
 mod layout;
@@ -69,6 +71,9 @@ fn main() {
     let file_data = fs::read_to_string(&file_path).expect("could not open file");
 
     let mut parsed_json: Json = serde_json::from_str(&file_data).unwrap();
+    let mut user_actions: UserActions = UserActions {
+        user_actions: Vec::new(),
+    };
 
     init_ncurses();
 
@@ -162,6 +167,23 @@ fn main() {
                         types::ListType::Todo
                     }
                 }
+            }
+
+            'D' => {
+                parsed_json.delete_from_list(
+                    &current_tab,
+                    match current_tab {
+                        types::ListType::Todo => current_selected_todo as usize,
+                        types::ListType::Projects => current_selected_project as usize,
+                    },
+                    &mut user_actions,
+                );
+                nc::clear();
+            }
+
+            'Z' => {
+                user_actions.pop(&mut parsed_json);
+                nc::clear();
             }
 
             'q' => quit = true,
