@@ -16,7 +16,7 @@ pub enum ListType {
 pub struct Todo {
     pub title: String,
     pub completed: bool,
-    pub description: String,
+    pub description: Vec<String>,
 }
 
 #[allow(non_snake_case)]
@@ -27,7 +27,19 @@ pub struct Json {
 }
 
 fn min(a: usize, b: usize) -> usize {
-    return if a < b { a } else { b };
+    if a < b {
+        a
+    } else {
+        b
+    }
+}
+
+fn max(a: usize, b: usize) -> usize {
+    if a > b {
+        a
+    } else {
+        b
+    }
 }
 
 fn characters_to_fill(num_chars: usize) -> String {
@@ -47,42 +59,47 @@ impl Todo {
         layout: &layout::LayoutBox,
         vector: &'a mut Vec<String>,
     ) -> &'a mut Vec<String> {
-        let symbol = if self.completed { "+" } else { " " };
-        let mut string1 = format!("{}. [{}] {}", index, symbol, self.title);
-
-        let chars_to_fill = layout.width - string1.chars().count() as i32;
-
-        for _ in 0..chars_to_fill {
-            string1 += " ";
-        }
-
-        vector.push(string1);
-
-        let total_description_length = self.description.chars().count();
         let usize_width = layout.width as usize;
 
-        if total_description_length + 3 > usize_width {
-            // break the string into segments and add them to vector
-            for i in 0..((total_description_length / usize_width) + 1) {
-                let cut_from = if i == 0 { 0 } else { i * usize_width - 3 };
-                let cut_to = min(usize_width * (i + 1) - 3, total_description_length);
+        // the title
+        let symbol = if self.completed { "+" } else { " " };
+        let string1 = format!("{}. [{}] {}", index, symbol, self.title);
 
-                let s = String::from(&self.description[cut_from..cut_to]);
+        let chars_to_fill = usize_width - string1.chars().count();
 
-                vector.push(String::from("   ") + &s + &characters_to_fill(s.chars().count() - 3));
+        vector.push(string1 + &characters_to_fill(chars_to_fill));
+        vector.push(characters_to_fill(usize_width)); // extra line between title and description
+
+        for desc in &self.description {
+            let total_description_length = desc.chars().count();
+
+            if total_description_length + 3 > usize_width {
+                // break the string into segments and add them to vector
+                for i in 0..((total_description_length / usize_width) + 1) {
+                    let cut_from = if i == 0 { 0 } else { i * usize_width - 3 };
+                    let cut_to = min(usize_width * (i + 1) - 3, total_description_length);
+
+                    let s = String::from(&desc[cut_from..cut_to]);
+
+                    let len_cut_string = s.chars().count();
+
+                    vector.push(
+                        String::from("   ")
+                            + &s
+                            + &characters_to_fill(max(usize_width - len_cut_string - 3, 0)),
+                    );
+                }
+            } else {
+                let mut string2 = format!("   {}", desc);
+                let chars_to_fill = usize_width - string2.chars().count();
+
+                string2 += &characters_to_fill(chars_to_fill);
+
+                vector.push(string2);
             }
-
-            return vector;
         }
 
-        let mut string2 = format!("   {}", self.description);
-        let chars_to_fill = usize_width - string2.chars().count();
-
-        string2 += &characters_to_fill(chars_to_fill);
-
-        vector.push(string2);
-
-        return vector;
+        vector
     }
 
     pub fn toggle_completed(&mut self) {

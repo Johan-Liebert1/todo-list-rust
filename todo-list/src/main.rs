@@ -38,7 +38,7 @@ fn save_and_exit(parsed_json: &Json) {
 
 fn init_ncurses() {
     nc::initscr();
-    // nc::noecho(); // don't show typed characters on the terminal
+    nc::noecho(); // don't show typed characters on the terminal
     nc::curs_set(nc::CURSOR_VISIBILITY::CURSOR_INVISIBLE); // hide the cursor
 
     nc::start_color();
@@ -73,14 +73,14 @@ fn main() {
     init_ncurses();
 
     let left_layout = layout::LayoutBox {
-        width: nc::COLS() / 2,
+        width: nc::COLS() / 2 - constants::PADDING,
         height: nc::LINES(),
         layout_type: layout::LayoutTypes::Vertical,
         position: layout::Position { x: 0, y: 0 },
     };
 
     let right_layout = layout::LayoutBox {
-        width: nc::COLS() / 2,
+        width: nc::COLS() / 2 - constants::PADDING,
         height: nc::LINES(),
         layout_type: layout::LayoutTypes::Vertical,
         position: layout::Position {
