@@ -8,7 +8,13 @@ use crate::actions::UserActions;
 use crate::constants;
 use crate::layout;
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ArgJson {
+    pub title: String,
+    pub description: Vec<String>,
+}
+
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum ListType {
     Projects,
     Todo,
@@ -117,9 +123,7 @@ impl Json {
             ListType::Projects => &mut self.projectsList,
         };
 
-        let index = if list.len() == 0 {
-            0
-        } else if item.index >= list.len() {
+        let index = if list.len() == 0 || item.index >= list.len() {
             list.len()
         } else {
             item.index

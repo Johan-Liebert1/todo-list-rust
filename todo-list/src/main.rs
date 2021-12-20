@@ -5,6 +5,7 @@ extern crate serde_json;
 use actions::UserActions;
 use ncurses as nc;
 use std::path::Path;
+use std::process::exit;
 use std::{env, fs};
 
 mod actions;
@@ -34,7 +35,8 @@ fn move_cursor_down(current_selected: &mut i16, list_len: usize) {
 fn save_and_exit(parsed_json: &Json) {
     let deserialised_json = serde_json::to_string(parsed_json).unwrap();
 
-    let file_path = Path::new(constants::FILE_PATH);
+    let path = helpers::get_file_path();
+    let file_path = Path::new(&path);
     fs::write(file_path, deserialised_json).expect("Failed to write to file");
 }
 
@@ -60,17 +62,35 @@ fn init_ncurses() {
 }
 
 fn main() {
+    let path = helpers::get_file_path();
+    let file_path = Path::new(&path);
+    let file_data = fs::read_to_string(file_path).expect("could not open file");
+    let mut parsed_json: Json = serde_json::from_str(&file_data).unwrap();
+
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 1 {
-        println!("{:?}", args);
-        return;
+        let (list_type, json) = helpers::parse_arguments(&args);
+
+        let index = match list_type {
+            types::ListType::Todo => parsed_json.todoList.len(),
+            types::ListType::Projects => parsed_json.projectsList.len(),
+        };
+
+        let actual_data = types::Todo {
+            completed: false,
+            index,
+            title: json.title,
+            description: json.description,
+        };
+
+        parsed_json.insert_into_list(list_type, actual_data);
+
+        save_and_exit(&parsed_json);
+
+        exit(0);
     }
 
-    let file_path = Path::new(constants::FILE_PATH);
-    let file_data = fs::read_to_string(&file_path).expect("could not open file");
-
-    let mut parsed_json: Json = serde_json::from_str(&file_data).unwrap();
     let mut user_actions: UserActions = UserActions {
         user_actions: Vec::new(),
     };
@@ -118,8 +138,6 @@ fn main() {
         nc::refresh();
 
         let key: i32 = nc::getch();
-
-        // println!("key = {}", key);
 
         match key as u8 as char {
             'w' => match current_tab {
@@ -169,7 +187,7 @@ fn main() {
                 }
             }
 
-            'D' => {
+            'X' => {
                 parsed_json.delete_from_list(
                     &current_tab,
                     match current_tab {
