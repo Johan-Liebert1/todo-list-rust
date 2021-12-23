@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "Building the project...";
-cargo build;
+cargo build --release;
 
-sudo mv ./target/debug/todo-list /usr/local/bin
+sudo mv ./target/release/todo-list /usr/local/bin
 
 mkdir -p /home/$USER/.todo-data
 

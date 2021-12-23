@@ -11,7 +11,7 @@ fn print_usage() {
     println!("Usage: todo-list [OPTIONS]");
     println!("OPTIONS");
     println!("  -a, --add       todo | project");
-    println!("  -d, --data      '{{\"title\": String, \"description\": []String}}'",);
+    println!("  -d, --data      '{{\"title\": String, \"desc\": []String}}'",);
 }
 
 pub fn parse_arguments(args: &Vec<String>) -> (types::ListType, types::ArgJson) {

@@ -11,7 +11,7 @@ use crate::layout;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ArgJson {
     pub title: String,
-    pub description: Vec<String>,
+    pub desc: Vec<String>,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
@@ -79,27 +79,44 @@ impl Todo {
         vector.push(string1 + &characters_to_fill(chars_to_fill));
         vector.push(characters_to_fill(usize_width)); // extra line between title and description
 
-        for desc in &self.description {
+        for (index, desc) in self.description.iter().enumerate() {
             let total_description_length = desc.chars().count();
+
+            let desc_index = String::from((index + 65) as u8 as char) + &String::from(". ");
+            let desc_index_chars = desc_index.chars().count();
 
             if total_description_length + 3 > usize_width {
                 // break the string into segments and add them to vector
                 for i in 0..((total_description_length / usize_width) + 1) {
-                    let cut_from = if i == 0 { 0 } else { i * usize_width - 3 };
-                    let cut_to = min(usize_width * (i + 1) - 3, total_description_length);
+                    let starting_space = if i == 0 {
+                        desc_index_chars
+                    } else {
+                        desc_index_chars * 2
+                    };
+
+                    let cut_from = if i == 0 {
+                        0
+                    } else {
+                        i * usize_width - desc_index_chars
+                    };
+
+                    let cut_to = min(
+                        usize_width * (i + 1) - desc_index_chars,
+                        total_description_length,
+                    );
 
                     let s = String::from(&desc[cut_from..cut_to]);
-
                     let len_cut_string = s.chars().count();
 
                     vector.push(
-                        String::from("   ")
+                        characters_to_fill(starting_space)
+                            + if i == 0 { &desc_index } else { "" }
                             + &s
-                            + &characters_to_fill(max(usize_width - len_cut_string - 3, 0)),
+                            + &characters_to_fill(max(usize_width - len_cut_string, 0)),
                     );
                 }
             } else {
-                let mut string2 = format!("   {}", desc);
+                let mut string2 = format!("{}{}", desc_index, desc);
                 let chars_to_fill = usize_width - string2.chars().count();
 
                 string2 += &characters_to_fill(chars_to_fill);

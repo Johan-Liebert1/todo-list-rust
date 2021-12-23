@@ -81,7 +81,7 @@ fn main() {
             completed: false,
             index,
             title: json.title,
-            description: json.description,
+            description: json.desc,
         };
 
         parsed_json.insert_into_list(list_type, actual_data);
