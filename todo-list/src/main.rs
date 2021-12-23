@@ -33,7 +33,7 @@ fn move_cursor_down(current_selected: &mut i16, list_len: usize) {
 }
 
 fn save_and_exit(parsed_json: &Json) {
-    let deserialised_json = serde_json::to_string(parsed_json).unwrap();
+    let deserialised_json = serde_json::to_string_pretty(parsed_json).unwrap();
 
     let path = helpers::get_file_path();
     let file_path = Path::new(&path);
@@ -62,10 +62,7 @@ fn init_ncurses() {
 }
 
 fn main() {
-    let path = helpers::get_file_path();
-    let file_path = Path::new(&path);
-    let file_data = fs::read_to_string(file_path).expect("could not open file");
-    let mut parsed_json: Json = serde_json::from_str(&file_data).unwrap();
+    let mut parsed_json: Json = serde_json::from_str(&helpers::get_file_data()).unwrap();
 
     let args: Vec<String> = env::args().collect();
 

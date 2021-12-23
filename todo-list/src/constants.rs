@@ -5,7 +5,7 @@ pub const COMPLETED_HIGHLIGHT: i16 = 3;
 pub const TAB_COLOR: i16 = 4;
 
 pub const PADDING: i32 = 5;
-pub const DEV_ENV: bool = true;
+pub const DEV_ENV: bool = false;
 
 // action names
 pub const DELETE_ITEM: &str = "DELETE_ITEM";

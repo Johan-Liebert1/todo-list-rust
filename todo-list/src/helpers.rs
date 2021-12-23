@@ -1,4 +1,6 @@
 use std::env;
+use std::fs;
+use std::path::Path;
 use std::process::exit;
 
 use ncurses as nc;
@@ -12,12 +14,28 @@ fn print_usage() {
     println!("OPTIONS");
     println!("  -a, --add       todo | project");
     println!("  -d, --data      '{{\"title\": String, \"desc\": []String}}'",);
+    println!("  view            View Json data");
+}
+
+pub fn get_file_data() -> String {
+    let path = get_file_path();
+    let file_path = Path::new(&path);
+    let file_data = fs::read_to_string(file_path).expect("could not open file");
+
+    file_data
 }
 
 pub fn parse_arguments(args: &Vec<String>) -> (types::ListType, types::ArgJson) {
-    if args.len() != 5 {
+    if args.len() != 5 && args[1] != "view" {
         print_usage();
         exit(1);
+    }
+
+    if args[1] == "view" {
+        // view json data
+        println!("\nViewing: {}\n", get_file_path());
+        println!("{}", get_file_data());
+        exit(0);
     }
 
     let mut todo_or_project = types::ListType::Todo;
@@ -45,7 +63,6 @@ pub fn parse_arguments(args: &Vec<String>) -> (types::ListType, types::ArgJson) 
                     }
                 }
             }
-
             _ => {}
         }
 

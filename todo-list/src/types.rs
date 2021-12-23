@@ -45,14 +45,6 @@ fn min(a: usize, b: usize) -> usize {
     }
 }
 
-fn max(a: usize, b: usize) -> usize {
-    if a > b {
-        a
-    } else {
-        b
-    }
-}
-
 fn characters_to_fill(num_chars: usize) -> String {
     let mut s = String::new();
 
@@ -99,33 +91,51 @@ impl Todo {
                     let cut_from = if i == 0 {
                         0
                     } else {
-                        i * usize_width - desc_index_chars
+                        i * usize_width - desc_index_chars * 2
                     };
 
                     let cut_to = min(
-                        usize_width * (i + 1) - desc_index_chars,
+                        usize_width * (i + 1) - desc_index_chars * 2,
                         total_description_length,
                     );
 
                     let s = String::from(&desc[cut_from..cut_to]);
-                    let len_cut_string = s.chars().count();
+
+                    let string_without_padding_spaces = characters_to_fill(starting_space)
+                        + if i == 0 { &desc_index } else { "" }
+                        + &s;
+
+                    let len_cut_string = string_without_padding_spaces.chars().count();
 
                     vector.push(
-                        characters_to_fill(starting_space)
-                            + if i == 0 { &desc_index } else { "" }
-                            + &s
-                            + &characters_to_fill(max(usize_width - len_cut_string, 0)),
+                        string_without_padding_spaces
+                            + &characters_to_fill(if usize_width > len_cut_string {
+                                usize_width - len_cut_string
+                            } else {
+                                0
+                            }),
                     );
                 }
             } else {
-                let mut string2 = format!("{}{}", desc_index, desc);
-                let chars_to_fill = usize_width - string2.chars().count();
+                let mut string2 = format!(
+                    "{}{}{}",
+                    characters_to_fill(desc_index_chars),
+                    desc_index,
+                    desc
+                );
+                let chars_to_fill = if usize_width >= string2.chars().count() {
+                    usize_width - string2.chars().count()
+                } else {
+                    0
+                };
 
                 string2 += &characters_to_fill(chars_to_fill);
 
                 vector.push(string2);
             }
         }
+
+        // println!("{:?}", vector);
 
         vector
     }
@@ -136,16 +146,6 @@ impl Todo {
 }
 
 impl Json {
-    // fn swap(&mut self, a: usize, b: usize) {
-    //     unsafe {
-    //         // Can't take two mutable loans from one vector, so instead just cast
-    //         // them to their raw pointers to do the swap
-    //         let pa: *mut T = &mut self[a];
-    //         let pb: *mut T = &mut self[b];
-    //         ptr::swap(pa, pb);
-    //     }
-    // }
-
     pub fn insert_into_list(&mut self, list_type: ListType, item: Todo) {
         let list = match list_type {
             ListType::Todo => &mut self.todoList,
