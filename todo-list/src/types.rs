@@ -2,6 +2,8 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
+use std::ptr;
+
 use serde_derive::{Deserialize, Serialize};
 
 use crate::actions::UserActions;
@@ -134,6 +136,16 @@ impl Todo {
 }
 
 impl Json {
+    // fn swap(&mut self, a: usize, b: usize) {
+    //     unsafe {
+    //         // Can't take two mutable loans from one vector, so instead just cast
+    //         // them to their raw pointers to do the swap
+    //         let pa: *mut T = &mut self[a];
+    //         let pb: *mut T = &mut self[b];
+    //         ptr::swap(pa, pb);
+    //     }
+    // }
+
     pub fn insert_into_list(&mut self, list_type: ListType, item: Todo) {
         let list = match list_type {
             ListType::Todo => &mut self.todoList,
@@ -164,6 +176,37 @@ impl Json {
         let item_removed = list.remove(current_selected);
 
         user_actions.push(constants::DELETE_ITEM, *list_type, item_removed);
+    }
+
+    pub fn shift_todo(&mut self, shift_by: i16, item_index: i16, list_type: &ListType) {
+        let list = match list_type {
+            ListType::Todo => &mut self.todoList,
+            ListType::Projects => &mut self.projectsList,
+        };
+
+        let shift_to_index = if shift_by == 1 {
+            if (item_index + shift_by) as usize >= list.len() {
+                0
+            } else {
+                item_index + shift_by
+            }
+        } else {
+            if item_index + shift_by < 0 {
+                (list.len() - 1) as i16
+            } else {
+                item_index + shift_by
+            }
+        };
+
+        let i = item_index as usize;
+        let j = shift_to_index as usize;
+
+        unsafe {
+            let pa: *mut Todo = &mut list[i];
+            let pb: *mut Todo = &mut list[j];
+
+            ptr::swap(pa, pb);
+        }
     }
 }
 

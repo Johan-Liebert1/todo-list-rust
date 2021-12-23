@@ -210,6 +210,47 @@ fn main() {
                 quit = true;
                 save_and_exit(&parsed_json);
             }
+
+            '+' => {
+                let item_index = match current_tab {
+                    types::ListType::Todo => current_selected_todo,
+                    types::ListType::Projects => current_selected_project,
+                };
+
+                parsed_json.shift_todo(1, item_index, &current_tab);
+
+                move_cursor_down(
+                    match current_tab {
+                        types::ListType::Todo => &mut current_selected_todo,
+                        types::ListType::Projects => &mut current_selected_project,
+                    },
+                    match current_tab {
+                        types::ListType::Todo => parsed_json.todoList.len(),
+                        types::ListType::Projects => parsed_json.projectsList.len(),
+                    },
+                );
+            }
+
+            '-' => {
+                let item_index = match current_tab {
+                    types::ListType::Todo => current_selected_todo,
+                    types::ListType::Projects => current_selected_project,
+                };
+
+                parsed_json.shift_todo(-1, item_index, &current_tab);
+
+                move_cursor_up(
+                    match current_tab {
+                        types::ListType::Todo => &mut current_selected_todo,
+                        types::ListType::Projects => &mut current_selected_project,
+                    },
+                    match current_tab {
+                        types::ListType::Todo => parsed_json.todoList.len(),
+                        types::ListType::Projects => parsed_json.projectsList.len(),
+                    },
+                );
+            }
+
             _ => {}
         }
     }
