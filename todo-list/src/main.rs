@@ -137,7 +137,7 @@ fn main() {
         let key: i32 = nc::getch();
 
         match key as u8 as char {
-            'w' => match current_tab {
+            'w' | '5' => match current_tab {
                 types::ListType::Todo => {
                     move_cursor_up(&mut current_selected_todo, parsed_json.todoList.len())
                 }
@@ -148,7 +148,7 @@ fn main() {
                 ),
             },
 
-            's' => match current_tab {
+            's' | '2' => match current_tab {
                 types::ListType::Todo => {
                     move_cursor_down(&mut current_selected_todo, parsed_json.todoList.len())
                 }
@@ -168,7 +168,7 @@ fn main() {
                 }
             },
 
-            '\t' | 'a' | 'd' => {
+            '\t' | 'a' | 'd' | '1' | '3' => {
                 (current_tab) = match current_tab {
                     types::ListType::Todo => {
                         current_selected_project = 0;
@@ -226,6 +226,8 @@ fn main() {
                         types::ListType::Projects => parsed_json.projectsList.len(),
                     },
                 );
+
+                nc::clear();
             }
 
             '-' => {
@@ -246,6 +248,8 @@ fn main() {
                         types::ListType::Projects => parsed_json.projectsList.len(),
                     },
                 );
+
+                nc::clear();
             }
 
             _ => {}
