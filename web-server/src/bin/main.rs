@@ -11,7 +11,7 @@ fn main() {
     let listener = TcpListener::bind("127.0.0.1:5000").unwrap();
     let thread_pool = ThreadPool::new(4);
 
-    for stream in listener.incoming() {
+    for stream in listener.incoming().take(2) {
         let stream = stream.unwrap();
         // handle_single_threaded_connection(stream);
         thread_pool.execute(|| handle_single_threaded_connection(stream));
@@ -23,7 +23,7 @@ fn handle_single_threaded_connection(mut stream: TcpStream) {
 
     stream.read(&mut buffer).unwrap();
 
-    println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+    // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
     let get = b"Request: GET / HTTP/1.1";
     let sleep = b"GET /sleep HTTP/1.1\r\n";
@@ -46,7 +46,6 @@ fn handle_single_threaded_connection(mut stream: TcpStream) {
         html
     );
 
-    println!("content len = {}", response.len());
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
