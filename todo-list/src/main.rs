@@ -159,6 +159,21 @@ fn main() {
                 ),
             },
 
+            'e' | 'E' => {
+                let mut vim = std::process::Command::new("vim")
+                    .arg(helpers::get_file_path())
+                    .spawn()
+                    .unwrap();
+
+                // let mut vim_stdin = vim.stdin.take().unwrap();
+                // let buffer = "hello".as_bytes();
+                // vim_stdin.write(&buffer).unwrap();
+
+                vim.wait().unwrap();
+
+                main();
+            }
+
             '\n' => match current_tab {
                 types::ListType::Todo => {
                     parsed_json.todoList[current_selected_todo as usize].toggle_completed()
