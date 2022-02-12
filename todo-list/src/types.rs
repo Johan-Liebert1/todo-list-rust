@@ -145,6 +145,10 @@ impl Todo {
     pub fn toggle_completed(&mut self) {
         self.completed = !self.completed;
     }
+
+    pub fn toggle_important(&mut self) {
+        self.important = !self.important;
+    }
 }
 
 impl Json {

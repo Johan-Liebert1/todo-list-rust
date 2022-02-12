@@ -185,6 +185,15 @@ fn main() {
                 exit(0);
             }
 
+            'i' | 'I' => match current_tab {
+                types::ListType::Todo => {
+                    parsed_json.todoList[current_selected_todo as usize].toggle_important()
+                }
+                types::ListType::Projects => {
+                    parsed_json.projectsList[current_selected_project as usize].toggle_important()
+                }
+            },
+
             '\n' => match current_tab {
                 types::ListType::Todo => {
                     parsed_json.todoList[current_selected_todo as usize].toggle_completed()

@@ -13,7 +13,7 @@ fn print_usage() {
     println!("Usage: todo-list [OPTIONS]");
     println!("OPTIONS");
     println!("  -a, --add       todo | project");
-    println!("  -d, --data      '{{\"title\": String, \"desc\": []String}}'",);
+    println!("  -d, --data      '{{ \"title\": String, \"desc\": []String, \"imp\": bool }}'",);
     println!("  view            View Json data");
 }
 
@@ -69,7 +69,16 @@ pub fn parse_arguments(args: &Vec<String>) -> (types::ListType, types::ArgJson) 
         i += 2;
     }
 
-    let parsed_json: types::ArgJson = serde_json::from_str(&json).expect("invalid json");
+    let parsed_json = match serde_json::from_str::<types::ArgJson>(&json) {
+        Ok(pj) => pj,
+        Err(error) => {
+            println!("\nError: {}\n", error);
+            print_usage();
+            println!();
+
+            exit(1);
+        }
+    };
 
     (todo_or_project, parsed_json)
 }
