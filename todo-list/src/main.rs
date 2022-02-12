@@ -46,18 +46,28 @@ fn init_ncurses() {
     nc::curs_set(nc::CURSOR_VISIBILITY::CURSOR_INVISIBLE); // hide the cursor
 
     nc::start_color();
+
     nc::init_pair(constants::NOT_COMPLETED, nc::COLOR_WHITE, nc::COLOR_BLACK);
     nc::init_pair(
         constants::NOT_COMPLETED_HIGHLIGHT,
         nc::COLOR_BLACK,
         nc::COLOR_WHITE,
     );
+
     nc::init_pair(constants::COMPLETED, nc::COLOR_GREEN, nc::COLOR_BLACK);
     nc::init_pair(
         constants::COMPLETED_HIGHLIGHT,
         nc::COLOR_BLACK,
         nc::COLOR_GREEN,
     );
+
+    nc::init_pair(constants::IMPORTANT, nc::COLOR_CYAN, nc::COLOR_BLACK);
+    nc::init_pair(
+        constants::IMPORTANT_HIGHLIGHT,
+        nc::COLOR_BLACK,
+        nc::COLOR_CYAN,
+    );
+
     nc::init_pair(constants::TAB_COLOR, nc::COLOR_CYAN, nc::COLOR_BLACK);
 }
 
@@ -79,6 +89,7 @@ fn main() {
             index,
             title: json.title,
             description: json.desc,
+            important: json.imp,
         };
 
         parsed_json.insert_into_list(list_type, actual_data);
@@ -171,7 +182,7 @@ fn main() {
 
                 vim.wait().unwrap();
 
-                main();
+                exit(0);
             }
 
             '\n' => match current_tab {

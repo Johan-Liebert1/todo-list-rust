@@ -14,6 +14,7 @@ use crate::layout;
 pub struct ArgJson {
     pub title: String,
     pub desc: Vec<String>,
+    pub imp: bool,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
@@ -28,6 +29,7 @@ pub struct Todo {
     pub title: String,
     pub completed: bool,
     pub description: Vec<String>,
+    pub important: bool,
 }
 
 #[allow(non_snake_case)]

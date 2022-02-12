@@ -92,9 +92,17 @@ pub fn get_text_attribute(todo_item: &types::Todo, index: usize, current_selecte
             constants::COMPLETED
         }
     } else if index as i16 == current_selected {
-        constants::NOT_COMPLETED_HIGHLIGHT
+        if todo_item.important {
+            constants::IMPORTANT_HIGHLIGHT
+        } else {
+            constants::NOT_COMPLETED_HIGHLIGHT
+        }
     } else {
-        constants::NOT_COMPLETED
+        if todo_item.important {
+            constants::IMPORTANT
+        } else {
+            constants::NOT_COMPLETED
+        }
     }
 }
 
