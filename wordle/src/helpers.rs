@@ -57,6 +57,7 @@ pub fn print_color_guesses(guess: &String, word: String) {
     }
 
     println!();
+    println!();
 }
 
 pub fn clear_prev_line() {
@@ -77,6 +78,20 @@ pub fn take_user_input() -> String {
     user_input = user_input.to_string().trim().to_uppercase();
 
     user_input
+}
+
+pub fn validate_user_input(user_input: &String) -> bool {
+    if user_input.len() != 5 {
+        color_print(
+            constants::RED,
+            String::from("Length of input must be 5 characters"),
+            true,
+        );
+
+        return false;
+    }
+
+    return true;
 }
 
 pub fn get_random_word() -> &'static str {

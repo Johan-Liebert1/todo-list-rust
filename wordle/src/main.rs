@@ -4,6 +4,7 @@ use std::process;
 
 use helpers::{
     clear_prev_line, color_print, get_random_word, print_color_guesses, take_user_input,
+    validate_user_input,
 };
 
 mod constants;
@@ -19,12 +20,7 @@ fn main() {
     while guess_number < 5 {
         let user_input = take_user_input();
 
-        if user_input.len() != 5 {
-            color_print(
-                constants::RED,
-                String::from("Length of input must be 5 characters"),
-                true,
-            );
+        if !validate_user_input(&user_input) {
             continue;
         }
 
