@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use crate::constants;
 
 pub fn color_print(color: &'static str, string: String, new_line: bool) {
-    let string = format!("{} {} {}", color, string, constants::RESET);
+    let string = format!("{}{}{}", color, string, constants::RESET);
 
     if new_line {
         println!("{}", string);
@@ -30,7 +30,7 @@ pub fn color_bg_print(color: &'static str, string: String, new_line: bool) {
     }
 }
 
-pub fn print_color_guesses(guess: String, word: String) {
+pub fn print_color_guesses(guess: &String, word: String) {
     let guess_bytes = guess.as_bytes();
     let word_bytes = word.as_bytes();
 
@@ -67,4 +67,16 @@ pub fn clear_line() {
     // clear to the end of line
     io::stdout().write("\u{001b}[1K".as_bytes()).unwrap();
     io::stdout().flush().unwrap();
+}
+
+pub fn take_user_input() -> String {
+    let mut user_input = String::from("");
+    io::stdin().read_line(&mut user_input).unwrap();
+    user_input = user_input.to_string().trim().to_uppercase();
+
+    user_input
+}
+
+pub fn get_random_word() -> &'static str {
+    constants::WORDS[rand::random::<usize>() % constants::WORDS.len()]
 }
