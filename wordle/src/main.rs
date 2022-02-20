@@ -1,6 +1,10 @@
+#![allow(non_snake_case)]
+
 use std::process;
 
-use helpers::{clear_line, color_print, get_random_word, print_color_guesses, take_user_input};
+use helpers::{
+    clear_prev_line, color_print, get_random_word, print_color_guesses, take_user_input,
+};
 
 mod constants;
 mod helpers;
@@ -8,14 +12,7 @@ mod helpers;
 fn main() {
     process::Command::new("clear").status().unwrap();
 
-    #[allow(non_snake_case)]
     let WORD = get_random_word();
-
-    // color_print(
-    //     constants::RED,
-    //     format!("The word is {}", String::from(WORD)),
-    //     true,
-    // );
 
     let mut guess_number = 0;
 
@@ -31,7 +28,7 @@ fn main() {
             continue;
         }
 
-        clear_line();
+        clear_prev_line();
 
         print_color_guesses(&user_input, String::from(WORD));
 

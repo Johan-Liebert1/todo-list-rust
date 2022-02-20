@@ -59,9 +59,11 @@ pub fn print_color_guesses(guess: &String, word: String) {
     println!();
 }
 
-pub fn clear_line() {
-    // move cursor to the start of the line
-    io::stdout().write("\u{001b}[0G".as_bytes()).unwrap();
+pub fn clear_prev_line() {
+    // move cursor to the start of the previous line
+    io::stdout()
+        .write("\u{001b}[1A \u{001b}[0G".as_bytes())
+        .unwrap();
     io::stdout().flush().unwrap();
 
     // clear to the end of line
