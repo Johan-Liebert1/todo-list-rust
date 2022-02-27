@@ -57,7 +57,6 @@ pub fn print_color_guesses(guess: &String, word: String) {
     }
 
     println!();
-    println!();
 }
 
 pub fn clear_prev_line() {
@@ -91,7 +90,7 @@ pub fn validate_user_input(user_input: &String) -> bool {
         return false;
     }
 
-    return true;
+    true
 }
 
 pub fn get_random_word() -> &'static str {
