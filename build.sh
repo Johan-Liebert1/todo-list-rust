@@ -3,7 +3,7 @@
 echo "Building the project...";
 cargo build --release;
 
-sudo mv ./target/release/todo-list /usr/local/bin
+sudo mv ./target/release/todolist /usr/local/bin
 
 mkdir -p /home/$USER/.todo-data
 
