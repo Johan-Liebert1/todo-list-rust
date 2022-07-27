@@ -76,12 +76,14 @@ impl Todo {
         vector.push(characters_to_fill(usize_width)); // extra line between title and description
 
         for (index, desc) in self.description.iter().enumerate() {
-            let total_description_length = desc.chars().count();
+            let total_description_length = desc.len();
 
             let desc_index = String::from((index + 65) as u8 as char) + &String::from(". ");
-            let desc_index_chars = desc_index.chars().count();
+            let desc_index_chars = desc_index.len();
 
-            if total_description_length + 3 > usize_width {
+            let mut prev_cut_to = 0;
+
+            if total_description_length + 3 >= usize_width {
                 // break the string into segments and add them to vector
                 for i in 0..((total_description_length / usize_width) + 1) {
                     let starting_space = if i == 0 {
@@ -92,14 +94,18 @@ impl Todo {
 
                     let cut_from = if i == 0 {
                         0
+                    } else if prev_cut_to != 0 {
+                        prev_cut_to
                     } else {
-                        i * usize_width - desc_index_chars * 2
+                        unreachable!();
                     };
 
                     let cut_to = min(
-                        usize_width * (i + 1) - desc_index_chars * 2,
+                        cut_from + usize_width - (starting_space * 2),
                         total_description_length,
                     );
+
+                    prev_cut_to = cut_to;
 
                     let s = String::from(&desc[cut_from..cut_to]);
 
@@ -107,7 +113,7 @@ impl Todo {
                         + if i == 0 { &desc_index } else { "" }
                         + &s;
 
-                    let len_cut_string = string_without_padding_spaces.chars().count();
+                    let len_cut_string = string_without_padding_spaces.len();
 
                     vector.push(
                         string_without_padding_spaces
@@ -125,6 +131,7 @@ impl Todo {
                     desc_index,
                     desc
                 );
+
                 let chars_to_fill = if usize_width >= string2.chars().count() {
                     usize_width - string2.chars().count()
                 } else {
@@ -136,8 +143,6 @@ impl Todo {
                 vector.push(string2);
             }
         }
-
-        // println!("{:?}", vector);
 
         vector
     }

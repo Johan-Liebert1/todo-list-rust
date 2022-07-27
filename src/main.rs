@@ -42,7 +42,7 @@ fn save_and_exit(parsed_json: &Json) {
 
 fn init_ncurses() {
     nc::initscr();
-    nc::noecho(); // don't show typed characters on the terminal
+    // nc::noecho(); // don't show typed characters on the terminal
     nc::curs_set(nc::CURSOR_VISIBILITY::CURSOR_INVISIBLE); // hide the cursor
 
     nc::start_color();
@@ -171,16 +171,16 @@ fn main() {
             },
 
             'e' | 'E' => {
-                let mut vim = std::process::Command::new("vim")
+                let mut nvim = std::process::Command::new("nvim")
                     .arg(helpers::get_file_path())
                     .spawn()
                     .unwrap();
 
-                // let mut vim_stdin = vim.stdin.take().unwrap();
+                // let mut vim_stdin = nvim.stdin.take().unwrap();
                 // let buffer = "hello".as_bytes();
                 // vim_stdin.write(&buffer).unwrap();
 
-                vim.wait().unwrap();
+                nvim.wait().unwrap();
 
                 exit(0);
             }
