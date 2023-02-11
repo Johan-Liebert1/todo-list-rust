@@ -30,6 +30,7 @@ pub struct Todo {
     pub completed: bool,
     pub description: Vec<String>,
     pub important: bool,
+    pub color: Option<String>,
 }
 
 #[allow(non_snake_case)]

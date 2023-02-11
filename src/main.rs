@@ -42,7 +42,7 @@ fn save_and_exit(parsed_json: &Json) {
 
 fn init_ncurses() {
     nc::initscr();
-    // nc::noecho(); // don't show typed characters on the terminal
+    nc::noecho(); // don't show typed characters on the terminal
     nc::curs_set(nc::CURSOR_VISIBILITY::CURSOR_INVISIBLE); // hide the cursor
 
     nc::start_color();
@@ -60,6 +60,8 @@ fn init_ncurses() {
         nc::COLOR_BLACK,
         nc::COLOR_GREEN,
     );
+
+    nc::init_color(constants::MAGENTA, 955, 0, 700);
 
     nc::init_pair(constants::IMPORTANT, nc::COLOR_CYAN, nc::COLOR_BLACK);
     nc::init_pair(
@@ -90,6 +92,7 @@ fn main() {
             title: json.title,
             description: json.desc,
             important: json.imp,
+            color: None,
         };
 
         parsed_json.insert_into_list(list_type, actual_data);
@@ -98,6 +101,8 @@ fn main() {
 
         exit(0);
     }
+
+    let color_hash_map = constants::get_hash_map();
 
     let mut user_actions: UserActions = UserActions {
         user_actions: Vec::new(),
